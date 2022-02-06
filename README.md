@@ -1,1 +1,1 @@
-# cuda_c
+# c_cuda
