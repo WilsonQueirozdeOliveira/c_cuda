@@ -1,87 +1,84 @@
 # c_cuda
 
-Repositório de exemplos básicos em **CUDA C/C++**.
+Repositório de exemplos progressivos em **CUDA C/C++**.
 
 ## Exemplos
 
-| Arquivo     | Descrição                                                      |
-|-------------|----------------------------------------------------------------|
-| `cuda_1.cu` | Kernel vazio + `printf` (teste mínimo)                         |
-| `cuda_2.cu` | Soma de dois números na GPU (`2 + 7`) + error checking         |
-| `cuda_3.cu` | Soma de vetores + tratamento completo de erros                 |
-| `cuda_4.cu` | **Multiplicação de matrizes** + medição de tempo (`cudaEvent`) |
+| Arquivo     | Descrição                                                              |
+|-------------|------------------------------------------------------------------------|
+| `cuda_1.cu` | Kernel vazio + `printf` (teste mínimo)                                 |
+| `cuda_2.cu` | Soma de dois números na GPU + error checking                           |
+| `cuda_3.cu` | Soma de vetores + tratamento completo de erros                         |
+| `cuda_4.cu` | Multiplicação de matrizes (versão global memory) + timing              |
+| `cuda_5.cu` | **Multiplicação de matrizes com Shared Memory (Tiled)** — otimização   |
 
 ## Compilação
 
 ```powershell
-# Compilar todos os exemplos
+# Compilar todos
 make
 
 # Ou individualmente
-nvcc -o cuda_1.exe cuda_1.cu
-nvcc -o cuda_2.exe cuda_2.cu
-nvcc -o cuda_3.exe cuda_3.cu
-nvcc -o cuda_4.exe cuda_4.cu
+nvcc -o cuda_5.exe cuda_5.cu
 ```
 
 ## Execução
 
 ```powershell
-.\cuda_1.exe
-.\cuda_2.exe
-.\cuda_3.exe
-.\cuda_4.exe
+.\cuda_5.exe
 ```
 
-### Saída esperada de `cuda_4`:
+### Saída esperada de `cuda_5`:
 
 ```
-Multiplicacao de matrizes 32x32
-C[0][0] = 64.0 (esperado: 64.0)
-C[0][1] = 64.0
-C[31][31] = 64.0
-
-Tempo de execucao do kernel: 0.XXX ms
-
-Sucesso!
+Multiplicacao de matrizes 1024x1024 com Shared Memory (TILE=16)
+C[0][0]     = 1024.0 (esperado: 1024.0)
+C[0][1]     = 1024.0
+C[1023][1023] = 1024.0
+Tempo do kernel: X.XXX ms
+Sucesso! Shared Memory funcionando.
 ```
 
-## Destaques do `cuda_4.cu`
+## Destaques do `cuda_5.cu` (Shared Memory)
 
-- Multiplicação de matrizes 32×32
-- Grid 2D (`dim3`)
-- Medição precisa de tempo com `cudaEventRecord` + `cudaEventElapsedTime`
-- Macro `CHECK_CUDA` para tratamento de erros
+- **Tiled Matrix Multiplication** (técnica clássica de otimização)
+- Uso de `__shared__` memory (muito mais rápida que a global)
+- `__syncthreads()` para sincronização dentro do bloco
+- Tile de 16×16 threads
+- Matriz 1024×1024 (bem maior que o exemplo anterior)
+- Medição de tempo com `cudaEvent`
+
+### Por que Shared Memory é importante?
+
+A memória global tem latência alta. A Shared Memory é ~100× mais rápida e fica dentro do SM (Streaming Multiprocessor).  
+Ao carregar tiles (blocos) para a shared memory, reduzimos drasticamente o número de acessos à memória global.
 
 ## Requisitos
 
 - NVIDIA GPU
-- CUDA Toolkit instalado (`nvcc` disponível no PATH)
+- CUDA Toolkit (`nvcc` no PATH)
 - Visual Studio Build Tools (Windows) — necessário para o `cl.exe`
-
-### Instalação no Windows
-
-1. Baixe o [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads)
-2. Instale o [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) com a workload **Desktop development with C++**
-3. Atualize o driver NVIDIA se necessário (`nvidia-smi`)
 
 ## Estrutura do Projeto
 
 ```
 c_cuda/
-├── cuda_1.cu      # Exemplo 1 - Kernel vazio
-├── cuda_2.cu      # Exemplo 2 - Soma simples + erros
-├── cuda_3.cu      # Exemplo 3 - Soma de vetores + erros
-├── cuda_4.cu      # Exemplo 4 - Multiplicação de matrizes + timing
-├── makefile       # Compilação automática
+├── cuda_1.cu      # Kernel vazio
+├── cuda_2.cu      # Soma simples + erros
+├── cuda_3.cu      # Soma de vetores
+├── cuda_4.cu      # Matmul (global memory)
+├── cuda_5.cu      # Matmul otimizado (Shared Memory)
+├── makefile
 └── README.md
 ```
 
 ## Próximos passos (sugestões)
 
-- [x] Adicionar tratamento de erros CUDA (`cudaGetLastError`)
-- [x] Exemplo de soma de vetores
-- [x] Exemplo de multiplicação de matrizes
-- [x] Medição de tempo com `cudaEvent`
-- [ ] Shared memory (otimização)
-- [ ] Matrizes maiores + comparação CPU vs GPU
+- [x] Tratamento de erros CUDA
+- [x] Soma de vetores
+- [x] Multiplicação de matrizes
+- [x] Medição de tempo (`cudaEvent`)
+- [x] Shared Memory (otimização)
+- [ ] Comparação de performance (Global vs Shared)
+- [ ] Reduction com Shared Memory
+- [ ] Streams e overlap CPU/GPU
