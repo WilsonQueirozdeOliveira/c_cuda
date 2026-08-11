@@ -4,11 +4,12 @@ Repositório de exemplos básicos em **CUDA C/C++**.
 
 ## Exemplos
 
-| Arquivo     | Descrição                                              |
-|-------------|--------------------------------------------------------|
-| `cuda_1.cu` | Kernel vazio + `printf` (teste mínimo)                 |
-| `cuda_2.cu` | Soma de dois números na GPU (`2 + 7`) + error checking |
-| `cuda_3.cu` | **Soma de vetores** + tratamento completo de erros     |
+| Arquivo     | Descrição                                                      |
+|-------------|----------------------------------------------------------------|
+| `cuda_1.cu` | Kernel vazio + `printf` (teste mínimo)                         |
+| `cuda_2.cu` | Soma de dois números na GPU (`2 + 7`) + error checking         |
+| `cuda_3.cu` | Soma de vetores + tratamento completo de erros                 |
+| `cuda_4.cu` | **Multiplicação de matrizes** + medição de tempo (`cudaEvent`) |
 
 ## Compilação
 
@@ -20,6 +21,7 @@ make
 nvcc -o cuda_1.exe cuda_1.cu
 nvcc -o cuda_2.exe cuda_2.cu
 nvcc -o cuda_3.exe cuda_3.cu
+nvcc -o cuda_4.exe cuda_4.cu
 ```
 
 ## Execução
@@ -28,30 +30,28 @@ nvcc -o cuda_3.exe cuda_3.cu
 .\cuda_1.exe
 .\cuda_2.exe
 .\cuda_3.exe
+.\cuda_4.exe
 ```
 
-### Saída esperada de `cuda_3`:
+### Saída esperada de `cuda_4`:
 
 ```
-Primeiros 10 resultados:
-c[0] = 0 + 0 = 0
-c[1] = 1 + 2 = 3
-c[2] = 2 + 4 = 6
-...
+Multiplicacao de matrizes 32x32
+C[0][0] = 64.0 (esperado: 64.0)
+C[0][1] = 64.0
+C[31][31] = 64.0
 
-Ultimos 5 resultados:
-c[507] = 507 + 1014 = 1521
-...
+Tempo de execucao do kernel: 0.XXX ms
 
-Sucesso! Soma de vetores concluida.
+Sucesso!
 ```
 
-## Destaques do `cuda_3.cu`
+## Destaques do `cuda_4.cu`
 
-- Macro `CHECK_CUDA` para facilitar o tratamento de erros
-- Uso de `cudaGetLastError()` após o lançamento do kernel
-- `cudaDeviceSynchronize()` para capturar erros de execução
-- Soma de vetores com 512 elementos
+- Multiplicação de matrizes 32×32
+- Grid 2D (`dim3`)
+- Medição precisa de tempo com `cudaEventRecord` + `cudaEventElapsedTime`
+- Macro `CHECK_CUDA` para tratamento de erros
 
 ## Requisitos
 
@@ -72,6 +72,7 @@ c_cuda/
 ├── cuda_1.cu      # Exemplo 1 - Kernel vazio
 ├── cuda_2.cu      # Exemplo 2 - Soma simples + erros
 ├── cuda_3.cu      # Exemplo 3 - Soma de vetores + erros
+├── cuda_4.cu      # Exemplo 4 - Multiplicação de matrizes + timing
 ├── makefile       # Compilação automática
 └── README.md
 ```
@@ -80,6 +81,7 @@ c_cuda/
 
 - [x] Adicionar tratamento de erros CUDA (`cudaGetLastError`)
 - [x] Exemplo de soma de vetores
-- [ ] Exemplo de multiplicação de matrizes
-- [ ] Medição de tempo com `cudaEvent`
-- [ ] Usar múltiplos blocos (grid maior)
+- [x] Exemplo de multiplicação de matrizes
+- [x] Medição de tempo com `cudaEvent`
+- [ ] Shared memory (otimização)
+- [ ] Matrizes maiores + comparação CPU vs GPU
