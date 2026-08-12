@@ -3,7 +3,6 @@
 
 NVCC ?= nvcc
 
-# Detecta a Compute Capability (ex: 5.0 -> 50, 7.5 -> 75)
 COMPUTE_CAP := $(shell nvidia-smi --query-gpu=compute_cap --format=csv,noheader,nounits 2>/dev/null | head -1 | tr -d '.' | tr -d ' ')
 
 ifeq ($(COMPUTE_CAP),)
@@ -23,7 +22,7 @@ endif
 
 .PHONY: all clean info
 
-all: info cuda_1$(EXE) cuda_2$(EXE) cuda_3$(EXE) cuda_4$(EXE) cuda_5$(EXE) cuda_6$(EXE) cuda_7$(EXE)
+all: info cuda_1$(EXE) cuda_2$(EXE) cuda_3$(EXE) cuda_4$(EXE) cuda_5$(EXE) cuda_6$(EXE) cuda_7$(EXE) cuda_8$(EXE)
 
 info:
 	@echo "========================================"
@@ -51,5 +50,8 @@ cuda_6$(EXE): cuda_6.cu
 cuda_7$(EXE): cuda_7.cu
 	$(NVCC) -o $@ $< $(NVCC_FLAGS)
 
+cuda_8$(EXE): cuda_8.cu
+	$(NVCC) -o $@ $< $(NVCC_FLAGS)
+
 clean:
-	$(RM) cuda_1$(EXE) cuda_2$(EXE) cuda_3$(EXE) cuda_4$(EXE) cuda_5$(EXE) cuda_6$(EXE) cuda_7$(EXE) 2>/dev/null || true
+	$(RM) cuda_1$(EXE) cuda_2$(EXE) cuda_3$(EXE) cuda_4$(EXE) cuda_5$(EXE) cuda_6$(EXE) cuda_7$(EXE) cuda_8$(EXE) 2>/dev/null || true
