@@ -12,6 +12,7 @@ Repositório de exemplos progressivos em **CUDA C/C++**.
 | `cuda_4.cu` | Multiplicação de matrizes (Global Memory) + timing                     |
 | `cuda_5.cu` | Multiplicação de matrizes com **Shared Memory** (Tiled)                |
 | `cuda_6.cu` | **Comparação de performance**: Global Memory vs Shared Memory          |
+| `cuda_7.cu` | **Parallel Reduction** com Shared Memory (soma de 1 milhão de elementos)|
 
 ## Compilação (automática)
 
@@ -20,8 +21,6 @@ O `makefile` detecta automaticamente a arquitetura da GPU:
 ```bash
 make
 ```
-
-Ele mostra a arquitetura detectada e compila todos os exemplos.
 
 ### Forçar uma arquitetura específica
 
@@ -34,32 +33,35 @@ make ARCH=sm_75    # GTX 1660 / RTX 20xx
 
 **Linux / WSL:**
 ```bash
-./cuda_6
+./cuda_7
 ```
 
 **Windows:**
 ```powershell
-.\cuda_6.exe
+.\cuda_7.exe
 ```
 
-### Saída esperada de `cuda_6` (exemplo MX130):
+### Saída esperada de `cuda_7` (MX130):
 
 ```
-================================================
-  Comparacao de Performance - Matriz 1024x1024
-================================================
-
-Versao                  | Tempo (ms)
-------------------------|-----------
-Global Memory           |   51.125
-Shared Memory (Tiled)   |   20.399
-------------------------|-----------
-
-Speedup (Shared / Global): 2.51x mais rapido
-
-Verificacao: C[0][0] = 1024.0 (esperado: 1024.0)
+========================================
+  Reduction com Shared Memory
+========================================
+Elementos: 1048576
+Blocos: 4096 | Threads/bloco: 256
+Soma GPU: 1048576.0
+Esperado: 1048576.0
+Tempo do kernel: 5.001 ms
 Resultado correto!
-================================================
+========================================
+```
+
+### Saída esperada de `cuda_6` (MX130):
+
+```
+Global Memory           | 51.125 ms
+Shared Memory (Tiled)   | 20.399 ms
+Speedup                 | 2.51x mais rápido
 ```
 
 ## Máquinas testadas
@@ -71,34 +73,28 @@ Resultado correto!
 
 ## Destaques dos exemplos avançados
 
-### `cuda_5.cu` e `cuda_6.cu` — Shared Memory
+### Shared Memory (cuda_5 e cuda_6)
 - Tiled Matrix Multiplication
-- Uso de `__shared__` + `__syncthreads()`
-- Tile 16×16
-- Comparação lado a lado com Global Memory
+- `__shared__` + `__syncthreads()`
+- Comparação Global vs Shared
 
-### Por que Shared Memory é importante?
-
-A memória global tem latência alta. A Shared Memory é muito mais rápida (fica dentro do SM).  
-Ao carregar tiles, reduzimos drasticamente os acessos lentos à memória global.
+### Parallel Reduction (cuda_7)
+- Soma de 1 milhão de elementos
+- Reduction em árvore dentro do bloco usando Shared Memory
+- Técnica fundamental usada em muitas bibliotecas CUDA
 
 ## Requisitos
 
 - NVIDIA GPU
 - CUDA Toolkit (`nvcc` no PATH)
-- **Windows**: Visual Studio Build Tools + `cl.exe`
-- **Linux/WSL**: apenas o CUDA Toolkit (recomendado Ubuntu 22.04)
+- **Windows**: Visual Studio Build Tools
+- **Linux/WSL**: Ubuntu 22.04 recomendado
 
 ## Estrutura do Projeto
 
 ```
 c_cuda/
-├── cuda_1.cu      # Kernel vazio
-├── cuda_2.cu      # Soma simples + erros
-├── cuda_3.cu      # Soma de vetores
-├── cuda_4.cu      # Matmul (Global Memory)
-├── cuda_5.cu      # Matmul (Shared Memory)
-├── cuda_6.cu      # Comparação Global vs Shared
+├── cuda_1.cu ... cuda_7.cu
 ├── makefile       # Detecta arquitetura automaticamente
 └── README.md
 ```
@@ -112,5 +108,5 @@ c_cuda/
 - [x] Shared Memory (otimização)
 - [x] Comparação de performance (Global vs Shared)
 - [x] Makefile inteligente (auto-detecta GPU)
-- [ ] Reduction com Shared Memory
+- [x] Parallel Reduction com Shared Memory
 - [ ] Streams e overlap CPU/GPU
