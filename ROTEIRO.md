@@ -134,6 +134,110 @@ add<<<4, 256>>>(a, b, c);   // 4 blocks × 256 threads = 1024 threads
 
 ---
 
+### Aula 10 – Hierarquia de Memória CUDA
+
+A GPU tem vários tipos de memória, cada um com velocidade, tamanho e escopo diferentes. Entender isso é fundamental para otimizar programas.
+
+#### Visão geral (do mais rápido para o mais lento)
+
+| Tipo de Memória | Escopo | Velocidade | Tamanho típico | Quem acessa |
+|-----------------|--------|------------|----------------|-------------|
+| **Registers** | 1 thread | Mais rápida | Muito pequeno | Só a própria thread |
+| **Local Memory** | 1 thread | Lenta* | Automática | Só a própria thread |
+| **Shared Memory** | 1 block | Muito rápida | ~48–164 KB / SM | Todas as threads do block |
+| **Constant Memory** | Toda a GPU | Rápida (cache) | 64 KB | Todas as threads (leitura) |
+| **Global Memory** | Toda a GPU | Lenta | GBs (2–24 GB+) | Todas as threads |
+
+\* Local Memory na verdade fica na Global Memory (é lenta). Só é usada quando faltam registradores.
+
+---
+
+#### 1. Registers (Registradores)
+
+- Mais rápida de todas
+- Cada thread tem seus próprios
+- Usada para variáveis locais do kernel (`int i`, `float sum`, etc.)
+- Limitada: se usar demais, o compilador “derrama” para Local Memory (fica lento)
+
+```cuda
+__global__ void exemplo() {
+    int idx = threadIdx.x;   // fica em registrador
+    float temp = 3.14f;      // fica em registrador
+}
+```
+
+---
+
+#### 2. Local Memory
+
+- Também privada por thread
+- Usada automaticamente quando:
+  - Arrays grandes declarados no kernel
+  - Muitos registradores necessários (register spilling)
+- Na prática é **lenta** (fica na Global Memory)
+
+---
+
+#### 3. Shared Memory (`__shared__`)
+
+- Rápida (fica dentro do SM)
+- **Compartilhada por todas as threads do mesmo block**
+- Ideal para colaboração entre threads (reduction, tiled matrix mul, etc.)
+- Usada nos exemplos `cuda_5`, `cuda_6` e `cuda_7`
+
+```cuda
+__shared__ float sdata[256];   // visível para todo o block
+```
+
+---
+
+#### 4. Constant Memory (`__constant__`)
+
+- Somente leitura
+- Cache especial (rápida quando todas as threads leem o mesmo endereço)
+- Boa para coeficientes, tabelas pequenas, parâmetros que não mudam
+
+```cuda
+__constant__ float coeficientes[64];
+```
+
+---
+
+#### 5. Global Memory
+
+- Maior de todas (vários GB)
+- Acessível por todas as threads de todos os blocks
+- **Mais lenta**
+- É onde ficam os dados principais (`cudaMalloc`)
+- Acesso deve ser **coalescido** (threads vizinhas acessando endereços vizinhos) para ser eficiente
+
+```cuda
+float *d_data;
+cudaMalloc(&d_data, N * sizeof(float));  // Global Memory
+```
+
+---
+
+#### Resumo visual da hierarquia
+
+```
+Registradores     →  por thread          (mais rápido)
+Shared Memory     →  por block           (muito rápido)
+Constant Memory   →  toda GPU (leitura)  (rápido com cache)
+Global Memory     →  toda GPU            (lento, mas grande)
+```
+
+---
+
+#### Regra prática de otimização
+
+1. Dados reutilizados por várias threads do mesmo block → **Shared Memory**
+2. Dados que todas as threads leem (e não mudam) → **Constant Memory**
+3. Dados grandes e principais → **Global Memory** (acesse de forma coalescida)
+4. Variáveis simples de cada thread → **Registers**
+
+---
+
 ## Módulo 3 – Shared Memory e Otimização
 
 | Aula | Tema | Exemplo no repo |
