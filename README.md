@@ -12,92 +12,74 @@ Repositório de exemplos progressivos em **CUDA C/C++**.
 | `cuda_4.cu` | Multiplicação de matrizes (Global Memory) + timing                     |
 | `cuda_5.cu` | Multiplicação de matrizes com **Shared Memory** (Tiled)                |
 | `cuda_6.cu` | **Comparação de performance**: Global Memory vs Shared Memory          |
-| `cuda_7.cu` | **Parallel Reduction** com Shared Memory (soma de 1 milhão de elementos)|
+| `cuda_7.cu` | **Parallel Reduction** com Shared Memory                               |
+| `cuda_8.cu` | **CUDA Streams** e overlap CPU/GPU                                     |
 
 ## Compilação (automática)
-
-O `makefile` detecta automaticamente a arquitetura da GPU:
 
 ```bash
 make
 ```
 
-### Forçar uma arquitetura específica
+O makefile detecta automaticamente a arquitetura da GPU.
 
 ```bash
-make ARCH=sm_50    # MX130
-make ARCH=sm_75    # GTX 1660 / RTX 20xx
+make ARCH=sm_50    # forçar MX130
+make ARCH=sm_75    # forçar GTX 1660
 ```
 
 ## Execução
 
-**Linux / WSL:**
-```bash
-./cuda_7
-```
+**Linux / WSL:** `./cuda_8`  
+**Windows:** `.\cuda_8.exe`
 
-**Windows:**
-```powershell
-.\cuda_7.exe
-```
+### Resultados reais (MX130)
 
-### Saída esperada de `cuda_7` (MX130):
-
-```
-========================================
-  Reduction com Shared Memory
-========================================
-Elementos: 1048576
-Blocos: 4096 | Threads/bloco: 256
-Soma GPU: 1048576.0
-Esperado: 1048576.0
-Tempo do kernel: 5.001 ms
-Resultado correto!
-========================================
-```
-
-### Saída esperada de `cuda_6` (MX130):
-
+**cuda_6 – Shared Memory vs Global**
 ```
 Global Memory           | 51.125 ms
 Shared Memory (Tiled)   | 20.399 ms
-Speedup                 | 2.51x mais rápido
+Speedup                 | 2.51x
+```
+
+**cuda_7 – Parallel Reduction**
+```
+Elementos: 1.048.576
+Tempo do kernel: ~5–6 ms
+Resultado: correto
+```
+
+**cuda_8 – Streams e Overlap**
+```
+Tempo SEM overlap: 21.323 ms
+Tempo COM streams: 17.840 ms
+Speedup: 1.20x
 ```
 
 ## Máquinas testadas
 
-| GPU              | Compute Capability | Arquitetura | Observação                  |
+| GPU              | Compute Capability | Arquitetura | Ambiente                    |
 |------------------|--------------------|-------------|-----------------------------|
 | **GTX 1660**     | 7.5                | Turing      | Desktop (Windows)           |
 | **GeForce MX130**| 5.0                | Maxwell     | Notebook (WSL2 Ubuntu 22.04)|
 
-## Destaques dos exemplos avançados
+## Conceitos cobertos
 
-### Shared Memory (cuda_5 e cuda_6)
-- Tiled Matrix Multiplication
-- `__shared__` + `__syncthreads()`
-- Comparação Global vs Shared
-
-### Parallel Reduction (cuda_7)
-- Soma de 1 milhão de elementos
-- Reduction em árvore dentro do bloco usando Shared Memory
-- Técnica fundamental usada em muitas bibliotecas CUDA
+| Exemplo   | Conceito principal                          |
+|-----------|---------------------------------------------|
+| cuda_1–2  | Kernel básico + error checking              |
+| cuda_3    | Soma de vetores                             |
+| cuda_4    | Matrix multiplication (global memory)       |
+| cuda_5–6  | Shared Memory + comparação de performance   |
+| cuda_7    | Parallel Reduction com Shared Memory        |
+| cuda_8    | CUDA Streams + overlap de transferência     |
 
 ## Requisitos
 
 - NVIDIA GPU
-- CUDA Toolkit (`nvcc` no PATH)
+- CUDA Toolkit (`nvcc`)
 - **Windows**: Visual Studio Build Tools
 - **Linux/WSL**: Ubuntu 22.04 recomendado
-
-## Estrutura do Projeto
-
-```
-c_cuda/
-├── cuda_1.cu ... cuda_7.cu
-├── makefile       # Detecta arquitetura automaticamente
-└── README.md
-```
 
 ## Progresso
 
@@ -105,8 +87,8 @@ c_cuda/
 - [x] Soma de vetores
 - [x] Multiplicação de matrizes
 - [x] Medição de tempo (`cudaEvent`)
-- [x] Shared Memory (otimização)
-- [x] Comparação de performance (Global vs Shared)
+- [x] Shared Memory
+- [x] Comparação de performance
 - [x] Makefile inteligente (auto-detecta GPU)
-- [x] Parallel Reduction com Shared Memory
-- [ ] Streams e overlap CPU/GPU
+- [x] Parallel Reduction
+- [x] Streams e overlap CPU/GPU
