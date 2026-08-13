@@ -20,6 +20,106 @@ Baseado nos exemplos do repositório `c_cuda` + próximos passos recomendados.
 
 ---
 
+### Aula 1 – O que é CUDA e o Modelo de Execução
+
+#### O que é CUDA?
+
+**CUDA** (Compute Unified Device Architecture) é a plataforma da NVIDIA que permite usar a **GPU** para fazer cálculos gerais (não só gráficos).
+
+Em vez de a GPU só desenhar imagens, você pode usá-la para:
+- Somar vetores
+- Multiplicar matrizes
+- Treinar redes neurais
+- Simulações científicas
+- Processamento de imagens, etc.
+
+A ideia principal: **a GPU tem milhares de núcleos simples** que podem trabalhar ao mesmo tempo. Ideal para problemas **paralelos**.
+
+---
+
+#### Host vs Device
+
+| Nome | O que é | Quem é |
+|------|---------|--------|
+| **Host** | CPU + memória RAM | Seu processador normal |
+| **Device** | GPU + memória da GPU | Placa de vídeo NVIDIA |
+
+- O **código normal** (C/C++) roda no **Host** (CPU).
+- O **código paralelo** (kernel) roda no **Device** (GPU).
+
+Você precisa:
+1. Preparar os dados na CPU
+2. Copiar para a GPU
+3. Executar o kernel na GPU
+4. Copiar o resultado de volta para a CPU
+
+---
+
+#### Modelo de Execução CUDA
+
+Quando você lança um kernel assim:
+
+```cuda
+kernel<<<grid, block>>>(...);
+```
+
+A CUDA organiza as threads em uma hierarquia:
+
+```
+Grid
+ └── Block 0
+ │    ├── Thread 0
+ │    ├── Thread 1
+ │    └── ...
+ └── Block 1
+ │    ├── Thread 0
+ │    └── ...
+ └── Block N
+```
+
+#### Conceitos principais:
+
+| Termo | Significado |
+|-------|-------------|
+| **Thread** | Uma unidade de execução (faz um pedaço do trabalho) |
+| **Block** | Grupo de threads que colaboram entre si (compartilham Shared Memory) |
+| **Grid** | Conjunto de todos os blocks |
+| **Kernel** | A função que roda na GPU (`__global__`) |
+
+---
+
+#### Exemplo visual simples
+
+Imagine somar dois vetores de 1024 elementos:
+
+```cuda
+add<<<4, 256>>>(a, b, c);   // 4 blocks × 256 threads = 1024 threads
+```
+
+- Cada **thread** calcula **um** elemento: `c[i] = a[i] + b[i]`
+- As 1024 threads rodam **ao mesmo tempo** (ou quase)
+
+---
+
+#### Fluxo típico de um programa CUDA
+
+```
+1. Alocar memória na GPU          →  cudaMalloc
+2. Copiar dados CPU → GPU         →  cudaMemcpy (HostToDevice)
+3. Lançar o kernel                →  kernel<<<grid, block>>>()
+4. Esperar a GPU terminar         →  cudaDeviceSynchronize()
+5. Copiar resultado GPU → CPU     →  cudaMemcpy (DeviceToHost)
+6. Liberar memória                →  cudaFree
+```
+
+---
+
+#### Resumo em uma frase
+
+> **CUDA permite que você escreva funções (kernels) que são executadas por milhares de threads em paralelo na GPU, organizadas em blocks e grids, enquanto a CPU controla o fluxo principal do programa.**
+
+---
+
 ## Módulo 2 – Memória e Performance Básica
 
 | Aula | Tema | Exemplo no repo |
