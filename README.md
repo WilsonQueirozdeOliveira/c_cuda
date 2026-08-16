@@ -88,12 +88,34 @@ A GTX 1660 é ~4–6× mais rápida que a MX130 nos kernels testados.
 
 ## Progresso
 
+### Concluído
+- [x] Modelo de execução CUDA (Host vs Device, Grid/Block/Thread)
+- [x] Primeiro kernel + `<<<>>>`
+- [x] `cudaMalloc` / `cudaMemcpy` / `cudaFree`
 - [x] Tratamento de erros CUDA
+- [x] Indexação de threads 1D e 2D
 - [x] Soma de vetores
-- [x] Multiplicação de matrizes
-- [x] Medição de tempo (`cudaEvent`)
-- [x] Shared Memory
-- [x] Comparação de performance
+- [x] Multiplicação de matrizes (Global Memory)
+- [x] Medição de tempo com `cudaEvent`
+- [x] Hierarquia de memória (Registers, Shared, Global, Constant)
+- [x] Shared Memory + Tiled Matrix Multiplication
+- [x] Comparação de performance Global vs Shared
+- [x] Parallel Reduction com Shared Memory
+- [x] CUDA Streams e overlap CPU/GPU
 - [x] Makefile inteligente (auto-detecta GPU no Windows e Linux)
-- [x] Parallel Reduction
-- [x] Streams e overlap CPU/GPU
+- [x] Benchmark em duas GPUs (MX130 e GTX 1660)
+- [x] Comparação WSL vs Windows nativo
+
+### Próximos objetivos
+- [ ] Bank Conflicts (demonstração + correção)
+- [ ] Occupancy e limites do hardware
+- [ ] Reduction warp-level (`__shfl`)
+- [ ] Prefix Sum / Scan
+- [ ] Histogramas
+- [ ] Stencil / convolução simples
+- [ ] Unified Memory
+- [ ] Cooperative Groups
+- [ ] Integração com cuBLAS
+- [ ] Profiling com Nsight Systems / Nsight Compute
+- [ ] Multi-GPU básico
+- [ ] CUDA Graphs (introdução)
