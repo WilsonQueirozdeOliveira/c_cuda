@@ -21,7 +21,7 @@ Repositório de exemplos progressivos em **CUDA C/C++**.
 make
 ```
 
-O makefile detecta automaticamente a arquitetura da GPU.
+O makefile detecta automaticamente a arquitetura da GPU (Windows + Linux/WSL).
 
 ```bash
 make ARCH=sm_50    # forçar MX130
@@ -35,23 +35,37 @@ make ARCH=sm_75    # forçar GTX 1660
 
 ## Resultados reais – Comparação de GPUs
 
-| Exemplo | Métrica | MX130 (sm_50) | GTX 1660 (sm_75) |
-|---------|---------|---------------|------------------|
-| **cuda_6** | Global Memory | 51.1 ms | **8.4 ms** |
-| **cuda_6** | Shared Memory | 20.4 ms | **4.1 ms** |
+| Exemplo | Métrica | MX130 (sm_50) WSL | GTX 1660 (sm_75) WSL |
+|---------|---------|-------------------|----------------------|
+| **cuda_6** | Global Memory | 51.1 ms | 8.4 ms |
+| **cuda_6** | Shared Memory | 20.4 ms | 4.1 ms |
 | **cuda_6** | Speedup Shared | 2.51× | 2.06× |
-| **cuda_7** | Reduction (1M elems) | ~5–6 ms | **1.4 ms** |
-| **cuda_8** | Sem overlap | 21.3 ms | **6.8 ms** |
-| **cuda_8** | Com streams | 17.8 ms | **4.4 ms** |
-| **cuda_8** | Speedup streams | 1.20× | **1.53×** |
+| **cuda_7** | Reduction (1M elems) | ~5–6 ms | 1.4 ms |
+| **cuda_8** | Sem overlap | 21.3 ms | 6.8 ms |
+| **cuda_8** | Com streams | 17.8 ms | 4.4 ms |
+| **cuda_8** | Speedup streams | 1.20× | 1.53× |
 
 A GTX 1660 é ~4–6× mais rápida que a MX130 nos kernels testados.
+
+## WSL vs Windows nativo (mesma GTX 1660)
+
+| Exemplo | Métrica | WSL | Windows nativo |
+|---------|---------|-----|----------------|
+| **cuda_6** | Global Memory | 8.43 ms | **7.90 ms** |
+| **cuda_6** | Shared Memory | 4.10 ms | 4.10 ms |
+| **cuda_6** | Speedup Shared | 2.06× | 1.93× |
+| **cuda_7** | Reduction | 1.41 ms | **0.20 ms** |
+| **cuda_8** | Sem overlap | 6.78 ms | **4.97 ms** |
+| **cuda_8** | Com streams | 4.44 ms | 4.52 ms |
+| **cuda_8** | Speedup streams | **1.53×** | 1.10× |
+
+**Conclusão:** kernels de compute ficam parecidos; Windows nativo tende a ser um pouco mais rápido em transferências e kernels muito curtos. WSL continua excelente para desenvolvimento.
 
 ## Máquinas testadas
 
 | GPU | Compute Capability | Arquitetura | Ambiente |
 |-----|--------------------|-------------|----------|
-| **GTX 1660** | 7.5 | Turing | Desktop (WSL2 / Windows) |
+| **GTX 1660** | 7.5 | Turing | Desktop (WSL2 + Windows nativo) |
 | **GeForce MX130** | 5.0 | Maxwell | Notebook (WSL2 Ubuntu 22.04) |
 
 ## Conceitos cobertos
@@ -69,7 +83,7 @@ A GTX 1660 é ~4–6× mais rápida que a MX130 nos kernels testados.
 
 - NVIDIA GPU
 - CUDA Toolkit (`nvcc`)
-- **Windows**: Visual Studio Build Tools
+- **Windows**: Visual Studio Build Tools + `make` (winget install ezwinports.make)
 - **Linux/WSL**: Ubuntu 22.04 recomendado
 
 ## Progresso
@@ -80,6 +94,6 @@ A GTX 1660 é ~4–6× mais rápida que a MX130 nos kernels testados.
 - [x] Medição de tempo (`cudaEvent`)
 - [x] Shared Memory
 - [x] Comparação de performance
-- [x] Makefile inteligente (auto-detecta GPU)
+- [x] Makefile inteligente (auto-detecta GPU no Windows e Linux)
 - [x] Parallel Reduction
 - [x] Streams e overlap CPU/GPU
