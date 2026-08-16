@@ -30,49 +30,40 @@ make ARCH=sm_75    # forçar GTX 1660
 
 ## Execução
 
-**Linux / WSL:** `./cuda_8`  
-**Windows:** `.\cuda_8.exe`
+**Linux / WSL:** `./cuda_6` `./cuda_7` `./cuda_8`  
+**Windows:** `.\cuda_6.exe` `.\cuda_7.exe` `.\cuda_8.exe`
 
-### Resultados reais (MX130)
+## Resultados reais – Comparação de GPUs
 
-**cuda_6 – Shared Memory vs Global**
-```
-Global Memory           | 51.125 ms
-Shared Memory (Tiled)   | 20.399 ms
-Speedup                 | 2.51x
-```
+| Exemplo | Métrica | MX130 (sm_50) | GTX 1660 (sm_75) |
+|---------|---------|---------------|------------------|
+| **cuda_6** | Global Memory | 51.1 ms | **8.4 ms** |
+| **cuda_6** | Shared Memory | 20.4 ms | **4.1 ms** |
+| **cuda_6** | Speedup Shared | 2.51× | 2.06× |
+| **cuda_7** | Reduction (1M elems) | ~5–6 ms | **1.4 ms** |
+| **cuda_8** | Sem overlap | 21.3 ms | **6.8 ms** |
+| **cuda_8** | Com streams | 17.8 ms | **4.4 ms** |
+| **cuda_8** | Speedup streams | 1.20× | **1.53×** |
 
-**cuda_7 – Parallel Reduction**
-```
-Elementos: 1.048.576
-Tempo do kernel: ~5–6 ms
-Resultado: correto
-```
-
-**cuda_8 – Streams e Overlap**
-```
-Tempo SEM overlap: 21.323 ms
-Tempo COM streams: 17.840 ms
-Speedup: 1.20x
-```
+A GTX 1660 é ~4–6× mais rápida que a MX130 nos kernels testados.
 
 ## Máquinas testadas
 
-| GPU              | Compute Capability | Arquitetura | Ambiente                    |
-|------------------|--------------------|-------------|-----------------------------|
-| **GTX 1660**     | 7.5                | Turing      | Desktop (Windows)           |
-| **GeForce MX130**| 5.0                | Maxwell     | Notebook (WSL2 Ubuntu 22.04)|
+| GPU | Compute Capability | Arquitetura | Ambiente |
+|-----|--------------------|-------------|----------|
+| **GTX 1660** | 7.5 | Turing | Desktop (WSL2 / Windows) |
+| **GeForce MX130** | 5.0 | Maxwell | Notebook (WSL2 Ubuntu 22.04) |
 
 ## Conceitos cobertos
 
-| Exemplo   | Conceito principal                          |
-|-----------|---------------------------------------------|
-| cuda_1–2  | Kernel básico + error checking              |
-| cuda_3    | Soma de vetores                             |
-| cuda_4    | Matrix multiplication (global memory)       |
-| cuda_5–6  | Shared Memory + comparação de performance   |
-| cuda_7    | Parallel Reduction com Shared Memory        |
-| cuda_8    | CUDA Streams + overlap de transferência     |
+| Exemplo | Conceito principal |
+|---------|--------------------|
+| cuda_1–2 | Kernel básico + error checking |
+| cuda_3 | Soma de vetores |
+| cuda_4 | Matrix multiplication (global memory) |
+| cuda_5–6 | Shared Memory + comparação de performance |
+| cuda_7 | Parallel Reduction com Shared Memory |
+| cuda_8 | CUDA Streams + overlap de transferência |
 
 ## Requisitos
 
