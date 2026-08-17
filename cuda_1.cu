@@ -1,14 +1,10 @@
 #include <stdio.h>
-#include <iostream>
 
-__global__ void kernel(void) {
-}
+__global__ void kernel() {}
 
-int main(void) {
-
-	printf("cuda\n");
-	kernel<<<1,1>>>();
-	printf("fim\n");
-
-	return 0;
+int main() {
+    printf("cuda\n");
+    kernel<<<1,1>>>();
+    printf("fim\n");
+    return 0;
 }
